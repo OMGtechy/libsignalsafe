@@ -13,6 +13,7 @@ FetchContent_MakeAvailable(catch)
 add_executable(
     libsignalsafe-test
     source/libsignalsafe-test.cpp
+    source/file-test.cpp
 )
 
 target_compile_options(
@@ -31,6 +32,7 @@ target_include_directories(
 target_link_libraries(
     libsignalsafe-test
     Catch2::Catch2
+    libsignalsafe
 )
 
 add_test(
