@@ -10,20 +10,31 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(catch)
 
-add_executable(libsignalsafe-test
+add_executable(
+    libsignalsafe-test
     source/libsignalsafe-test.cpp
 )
 
-target_compile_options(libsignalsafe-test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+target_compile_options(
+    libsignalsafe-test PRIVATE
+    -Wall
+    -Wextra
+    -Wpedantic
+    -Werror
+)
 
-target_include_directories(libsignalsafe-test PRIVATE
+target_include_directories(
+    libsignalsafe-test PRIVATE
     include
 )
 
-target_link_libraries(libsignalsafe-test
+target_link_libraries(
+    libsignalsafe-test
     Catch2::Catch2
 )
 
-add_test(NAME libsignalsafe-test
-         COMMAND $<TARGET_FILE:libsignalsafe-test>)
+add_test(
+    NAME libsignalsafe-test
+    COMMAND $<TARGET_FILE:libsignalsafe-test>
+)
 
