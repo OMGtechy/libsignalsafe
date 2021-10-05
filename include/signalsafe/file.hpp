@@ -39,12 +39,12 @@ namespace signalsafe {
         //!
         static File open_existing(std::string_view path);
 
-        //!$
-        //! \brief  Reads the requested number of bytes into the target.
+        //!
+        //! \brief  Reads the requested bytes into the target.
         //!
         //! \param[out]  target  Where to write the read bytes.
         //!
-        //! \returns  the number of bytes read.
+        //! \returns  The number of bytes read.
         //!
         std::size_t read(std::span<std::byte> target);
 
