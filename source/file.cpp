@@ -8,6 +8,14 @@
 
 using signalsafe::File;
 
+File File::create_and_open(std::string_view path) {
+    File file;
+
+    file.m_fileDescriptor = ::open(path.data(), O_RDWR | O_CREAT | O_EXCL);
+
+    return file;
+}
+
 File File::open_existing(std::string_view path) {
     File file;
 

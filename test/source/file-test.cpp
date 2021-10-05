@@ -2,6 +2,7 @@
 #include "signalsafe/file.hpp"
 
 #include <cstddef>
+#include <filesystem>
 
 SCENARIO("signalsafe::file") {
     GIVEN("/dev/zero as a the target file path") {
@@ -35,6 +36,23 @@ SCENARIO("signalsafe::file") {
                         REQUIRE(target[10] == std::byte{0});
                     }
                 }
+            }
+        }
+    }
+
+    GIVEN("a path to a file that doesn't currently exist") {
+        auto path = std::filesystem::temp_directory_path();
+        path.concat("/create_and_open_test");
+
+        std::filesystem::remove(path);
+
+        REQUIRE(! std::filesystem::exists(path));
+
+        WHEN("create_and_open is called with it") {
+            auto file = signalsafe::File::create_and_open(path.c_str());
+
+            THEN("the file exists") {
+                REQUIRE(std::filesystem::exists(path));
             }
         }
     }

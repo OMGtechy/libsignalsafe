@@ -22,6 +22,15 @@ namespace signalsafe {
         File& operator=(File&&) = default;
 
         //!
+        //! \brief  Creates and opens a new file at the path provided.
+        //!
+        //! \param[in]  path  The path of the file to be created.
+        //!
+        //! \returns  The created file, opened.
+        //!
+        static File create_and_open(std::string_view path);
+
+        //!
         //! \brief  Opens an existing file at the path provided.
         //!
         //! \param[in]  path  The path to the file to be opened (must be null terminated).
