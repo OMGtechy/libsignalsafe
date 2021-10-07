@@ -53,7 +53,7 @@ std::size_t File::read(std::span<std::byte> target) {
         const auto newBytesReadOrError = ::read(
             m_fileDescriptor,
             target.data(),
-            static_cast<ssize_t>(target.size())
+            target.size()
         );
 
         if (newBytesReadOrError < 0) {
