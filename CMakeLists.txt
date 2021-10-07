@@ -10,6 +10,12 @@ add_library(
     source/file.cpp
 )
 
+set_target_properties(
+    libsignalsafe
+    PROPERTIES
+    PREFIX ""
+)
+
 target_include_directories(
     libsignalsafe
     PUBLIC
