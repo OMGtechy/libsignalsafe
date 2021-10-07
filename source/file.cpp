@@ -11,7 +11,8 @@ using signalsafe::File;
 File File::create_and_open(std::string_view path) {
     File file;
 
-    file.m_fileDescriptor = ::open(path.data(), O_RDWR | O_CREAT | O_EXCL);
+    file.m_fileDescriptor = ::open(path.data(), O_RDWR | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
+    assert(file.m_fileDescriptor != -1);
 
     return file;
 }
@@ -20,6 +21,7 @@ File File::open_existing(std::string_view path) {
     File file;
 
     file.m_fileDescriptor = ::open(path.data(), O_RDONLY);
+    assert(file.m_fileDescriptor != -1);
 
     return file;
 }
@@ -60,3 +62,48 @@ std::size_t File::read(std::span<std::byte> target) {
     return bytesRead;
 }
 
+std::size_t File::write(std::span<const std::byte> source) {
+    std::size_t bytesWritten = 0;
+
+    while(source.size() > 0) {
+        const auto newBytesWrittenOrError = ::write(
+            m_fileDescriptor,
+            source.data(),
+            source.size()
+        );
+
+        if (newBytesWrittenOrError < 0) {
+            // Just in case any subsequent calls modify it.
+            const auto errorCode = errno;
+
+            // This is the only "acceptable" error;
+            // it can happen when a signal fires mid-write.
+            assert(errorCode == EINTR);
+
+            continue;
+        }
+
+        const auto newBytesWritten = static_cast<std::size_t>(newBytesWrittenOrError);
+        source = decltype(source)(source.data() + newBytesWritten, source.size() - newBytesWritten);
+        bytesWritten += static_cast<size_t>(newBytesWritten);
+    }
+
+    return bytesWritten;
+}
+
+bool File::close() {
+    assert(m_fileDescriptor != -1);
+
+    do {
+        switch(::close(m_fileDescriptor)) {
+        case EINTR: continue;
+        case 0: {
+            m_fileDescriptor = -1;
+            return true;
+        }
+        default: {
+            assert(false);
+            return false;
+        }}
+    } while(true);
+}

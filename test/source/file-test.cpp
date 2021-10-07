@@ -54,6 +54,34 @@ SCENARIO("signalsafe::file") {
             THEN("the file exists") {
                 REQUIRE(std::filesystem::exists(path));
             }
+
+            AND_GIVEN("some const non-zero bytes") {
+                const std::array<std::byte, 5> data = {
+                    std::byte{1},
+                    std::byte{2},
+                    std::byte{3},
+                    std::byte{4},
+                    std::byte{5}
+                };
+
+                WHEN("write is called") {
+                    file.write(data);
+
+                    AND_WHEN("the file is closed and read back into a buffer that previously contained all zeros") {
+                        file.close();
+                        file = signalsafe::File::open_existing(path.c_str());
+
+                        std::array<std::byte, 5> target;
+                        target.fill(std::byte{0});
+
+                        file.read(target);
+
+                        THEN("the read data matches what was written") {
+                            REQUIRE(data == target);
+                        }
+                    }
+                }
+            }
         }
     }
 }

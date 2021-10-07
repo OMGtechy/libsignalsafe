@@ -48,6 +48,22 @@ namespace signalsafe {
         //!
         std::size_t read(std::span<std::byte> target);
 
+        //!
+        //! \brief  Writes the requested bytes to the target.
+        //!
+        //! \param[in]  source  Where to read the bytes from.
+        //!
+        //! \returns  The number of bytes written.
+        //!
+        std::size_t write(std::span<const std::byte> source);
+
+        //!
+        //! \brief  Closes the file.
+        //!
+        //! \returns  True if successful, false otherwise.
+        //!
+        bool close();
+
     private:
         using file_descriptor = int;
 
