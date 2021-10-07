@@ -11,15 +11,15 @@ namespace signalsafe {
         //! \brief  Constructs an instance that refers to no file, much like std::ifstream.
         //!
         File() = default;
-        virtual ~File() = default;
+        virtual ~File();
 
         // non-copyable
         File(const File&) = delete;
         File& operator=(const File&) = delete;
 
         // moveable
-        File(File&&) = default;
-        File& operator=(File&&) = default;
+        File(File&&);
+        File& operator=(File&&);
 
         //!
         //! \brief  Creates and opens a new file at the path provided.

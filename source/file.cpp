@@ -8,6 +8,24 @@
 
 using signalsafe::File;
 
+File::~File() {
+    if(m_fileDescriptor != -1) {
+        const auto closeSuccess = this->close();
+        assert(closeSuccess);
+    }
+}
+
+File::File(File&& other) {
+    *this = std::move(other);
+}
+
+File& File::operator=(File&& other) {
+    this->m_fileDescriptor = other.m_fileDescriptor;
+    other.m_fileDescriptor = -1;
+
+    return *this;
+}
+
 File File::create_and_open(std::string_view path) {
     File file;
 
@@ -92,7 +110,9 @@ std::size_t File::write(std::span<const std::byte> source) {
 }
 
 bool File::close() {
-    assert(m_fileDescriptor != -1);
+    if(m_fileDescriptor == -1) {
+        return false;
+    }
 
     do {
         switch(::close(m_fileDescriptor)) {

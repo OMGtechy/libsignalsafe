@@ -2,6 +2,7 @@
 #include "signalsafe/file.hpp"
 
 #include <cstddef>
+#include <cstring>
 #include <filesystem>
 
 SCENARIO("signalsafe::file") {
@@ -67,17 +68,35 @@ SCENARIO("signalsafe::file") {
                 WHEN("write is called") {
                     file.write(data);
 
-                    AND_WHEN("the file is closed and read back into a buffer that previously contained all zeros") {
+                    AND_WHEN("the file is closed via .close()") {
                         file.close();
-                        file = signalsafe::File::open_existing(path.c_str());
 
-                        std::array<std::byte, 5> target;
-                        target.fill(std::byte{0});
+                        THEN("lsof reports the file isn't open") {
+                            const auto popenCommand = std::string("lsof ") + path.string();
+                            auto* const linuxFilePtr = popen(popenCommand.c_str(), "r");
+                            CHECK(linuxFilePtr != nullptr);
 
-                        file.read(target);
+                            std::array<char, 8> lineBuffer = { };
 
-                        THEN("the read data matches what was written") {
-                            REQUIRE(data == target);
+                            fgets(lineBuffer.data(), lineBuffer.size(), linuxFilePtr);
+
+                            REQUIRE(pclose(linuxFilePtr) != -1);
+
+                            // i.e. no lsof output, which means nothing has it open
+                            REQUIRE(strnlen(lineBuffer.data(), lineBuffer.size()) == 0);
+
+                            AND_WHEN("the file is reopened and read back into a buffer that previously contained all zeros") {
+                                file = signalsafe::File::open_existing(path.c_str());
+
+                                std::array<std::byte, 5> target;
+                                target.fill(std::byte{0});
+
+                                file.read(target);
+
+                                THEN("the read data matches what was written") {
+                                    REQUIRE(data == target);
+                                }
+                            }
                         }
                     }
                 }
