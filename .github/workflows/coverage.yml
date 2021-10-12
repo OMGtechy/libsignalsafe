@@ -22,7 +22,7 @@ jobs:
         cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
         cmakeBuildType: Debug
         buildDirectory: ${{ github.workspace }}/build
-        cmakeAppendedArgs: -DSWIMPS_ENABLE_COVERAGE=ON
+        cmakeAppendedArgs: -DENABLE_COVERAGE=ON
       env:
         CC:   gcc-10
         CXX:  g++-10
