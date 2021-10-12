@@ -73,14 +73,25 @@ SCENARIO("signalsafe::file") {
 
                         THEN("lsof reports the file isn't open") {
                             const auto popenCommand = std::string("lsof ") + path.string();
-                            auto* const linuxFilePtr = popen(popenCommand.c_str(), "r");
-                            CHECK(linuxFilePtr != nullptr);
+
+                            struct LinuxFilePtrRAII final {
+                                LinuxFilePtrRAII(FILE* const _linuxFilePtr) : linuxFilePtr(_linuxFilePtr) { }
+                                ~LinuxFilePtrRAII() {
+                                    if(linuxFilePtr != nullptr) {
+                                        REQUIRE(pclose(linuxFilePtr) != -1);
+                                    }
+                                }
+
+                                FILE* const linuxFilePtr;
+                            };
+
+                            LinuxFilePtrRAII linuxFilePtrRAII(popen(popenCommand.c_str(), "r"));
+
+                            REQUIRE(linuxFilePtrRAII.linuxFilePtr != nullptr);
 
                             std::array<char, 8> lineBuffer = { };
 
-                            fgets(lineBuffer.data(), lineBuffer.size(), linuxFilePtr);
-
-                            REQUIRE(pclose(linuxFilePtr) != -1);
+                            fgets(lineBuffer.data(), lineBuffer.size(), linuxFilePtrRAII.linuxFilePtr);
 
                             // i.e. no lsof output, which means nothing has it open
                             REQUIRE(strnlen(lineBuffer.data(), lineBuffer.size()) == 0);
