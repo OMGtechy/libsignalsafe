@@ -168,5 +168,17 @@ SCENARIO("signalsafe::file") {
             }
         }
     }
+
+    GIVEN("a default constructor file") {
+        signalsafe::File file;
+
+        WHEN("close is called") {
+            const bool result = file.close();
+
+            THEN("it returns false") {
+                REQUIRE(result == false);
+            }
+        }
+    }
 }
 
