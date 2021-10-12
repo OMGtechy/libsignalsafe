@@ -75,7 +75,7 @@ SCENARIO("signalsafe::file") {
                             const auto popenCommand = std::string("lsof ") + path.string();
 
                             struct LinuxFilePtrRAII final {
-                                LinuxFilePtrRAII(FILE* const _linuxFilePtr) : linuxFilePtr(_linuxFilePtr) { }
+                                explicit LinuxFilePtrRAII(FILE* const _linuxFilePtr) : linuxFilePtr(_linuxFilePtr) { }
                                 ~LinuxFilePtrRAII() {
                                     if(linuxFilePtr != nullptr) {
                                         REQUIRE(pclose(linuxFilePtr) != -1);
