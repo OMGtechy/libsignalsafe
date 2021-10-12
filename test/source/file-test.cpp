@@ -5,6 +5,8 @@
 #include <cstring>
 #include <filesystem>
 
+using signalsafe::File;
+
 namespace {
     enum class FileOpenState {
         Open,
@@ -54,7 +56,7 @@ SCENARIO("signalsafe::file") {
         constexpr char targetFile[] = "/dev/zero";
 
         WHEN("open_existing is called") {
-            auto file = signalsafe::File::open_existing(targetFile);
+            auto file = File::open_existing(targetFile);
 
             AND_GIVEN("a 12-byte target array initialised to 1") {
                 std::array<std::byte, 12> target;
@@ -89,7 +91,7 @@ SCENARIO("signalsafe::file") {
         const auto path = get_temporary_file_path(__LINE__);
 
         WHEN("create_and_open is called with it") {
-            auto file = signalsafe::File::create_and_open(path.c_str());
+            auto file = File::create_and_open(path.c_str());
 
             THEN("the file exists") {
                 REQUIRE(std::filesystem::exists(path));
@@ -115,7 +117,7 @@ SCENARIO("signalsafe::file") {
                         THEN("lsof reports the file isn't open") {
 
                             AND_WHEN("the file is reopened and read back into a buffer that previously contained all zeros") {
-                                file = signalsafe::File::open_existing(path.c_str());
+                                file = File::open_existing(path.c_str());
 
                                 std::array<std::byte, 5> target;
                                 target.fill(std::byte{0});
@@ -137,25 +139,25 @@ SCENARIO("signalsafe::file") {
         const auto path = get_temporary_file_path(__LINE__); 
 
         WHEN("create_and_open is called with it") {
-            auto file = signalsafe::File::create_and_open(path.c_str());
+            auto file = File::create_and_open(path.c_str());
 
             THEN("the file is open") {
                 REQUIRE(check_file_open_state(path) == FileOpenState::Open);
 
                 AND_WHEN("a file is move constructed from this file") {
-                    signalsafe::File newFile(std::move(file));
+                    File newFile(std::move(file));
 
                     THEN("the file is still open") {
                         REQUIRE(check_file_open_state(path) == FileOpenState::Open);
 
                         AND_WHEN("the original file instance's destructor is called") {
-                            file = signalsafe::File{};
+                            file = File{};
 
                             THEN("the file is still open") {
                                 REQUIRE(check_file_open_state(path) == FileOpenState::Open);
 
                                 AND_WHEN("the moved-to instance's destructor is called") {
-                                    newFile = signalsafe::File{};
+                                    newFile = File{};
 
                                     THEN("the file is no longer open") {
                                         REQUIRE(check_file_open_state(path) == FileOpenState::Closed);
@@ -170,7 +172,7 @@ SCENARIO("signalsafe::file") {
     }
 
     GIVEN("a default constructor file") {
-        signalsafe::File file;
+        File file;
 
         WHEN("close is called") {
             const bool result = file.close();
