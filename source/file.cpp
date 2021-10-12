@@ -20,6 +20,11 @@ File::File(File&& other) {
 }
 
 File& File::operator=(File&& other) {
+    if(m_fileDescriptor != -1) {
+        const auto closeSuccess = this->close();
+        assert(closeSuccess);
+    }
+
     this->m_fileDescriptor = other.m_fileDescriptor;
     other.m_fileDescriptor = -1;
 

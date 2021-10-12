@@ -5,6 +5,50 @@
 #include <cstring>
 #include <filesystem>
 
+namespace {
+    enum class FileOpenState {
+        Open,
+        Closed
+    };
+
+    FileOpenState check_file_open_state(std::filesystem::path path) {
+        const auto popenCommand = std::string("lsof ") + path.string();
+
+        struct LinuxFilePtrRAII final {
+            explicit LinuxFilePtrRAII(FILE* const _linuxFilePtr) : linuxFilePtr(_linuxFilePtr) { }
+            ~LinuxFilePtrRAII() {
+                if(linuxFilePtr != nullptr) {
+                    REQUIRE(pclose(linuxFilePtr) != -1);
+                }
+            }
+
+            FILE* const linuxFilePtr;
+        };
+
+        LinuxFilePtrRAII linuxFilePtrRAII(popen(popenCommand.c_str(), "r"));
+
+        REQUIRE(linuxFilePtrRAII.linuxFilePtr != nullptr);
+
+        std::array<char, 8> lineBuffer = { };
+
+        fgets(lineBuffer.data(), lineBuffer.size(), linuxFilePtrRAII.linuxFilePtr);
+
+        // no lsof output means nothing has it open
+        return strnlen(lineBuffer.data(), lineBuffer.size()) == 0 ? FileOpenState::Closed : FileOpenState::Open;
+    }
+
+    std::filesystem::path get_temporary_file_path(const size_t lineNumber) {
+        auto path = std::filesystem::temp_directory_path();
+        path.concat("/libsignalsafe-test-test-" + std::to_string(lineNumber));
+
+        std::filesystem::remove(path);
+
+        REQUIRE(! std::filesystem::exists(path));
+
+        return path;
+    }
+}
+
 SCENARIO("signalsafe::file") {
     GIVEN("/dev/zero as a the target file path") {
         constexpr char targetFile[] = "/dev/zero";
@@ -42,12 +86,7 @@ SCENARIO("signalsafe::file") {
     }
 
     GIVEN("a path to a file that doesn't currently exist") {
-        auto path = std::filesystem::temp_directory_path();
-        path.concat("/create_and_open_test");
-
-        std::filesystem::remove(path);
-
-        REQUIRE(! std::filesystem::exists(path));
+        const auto path = get_temporary_file_path(__LINE__);
 
         WHEN("create_and_open is called with it") {
             auto file = signalsafe::File::create_and_open(path.c_str());
@@ -71,30 +110,9 @@ SCENARIO("signalsafe::file") {
                     AND_WHEN("the file is closed via .close()") {
                         file.close();
 
+                        REQUIRE(check_file_open_state(path) == FileOpenState::Closed);
+
                         THEN("lsof reports the file isn't open") {
-                            const auto popenCommand = std::string("lsof ") + path.string();
-
-                            struct LinuxFilePtrRAII final {
-                                explicit LinuxFilePtrRAII(FILE* const _linuxFilePtr) : linuxFilePtr(_linuxFilePtr) { }
-                                ~LinuxFilePtrRAII() {
-                                    if(linuxFilePtr != nullptr) {
-                                        REQUIRE(pclose(linuxFilePtr) != -1);
-                                    }
-                                }
-
-                                FILE* const linuxFilePtr;
-                            };
-
-                            LinuxFilePtrRAII linuxFilePtrRAII(popen(popenCommand.c_str(), "r"));
-
-                            REQUIRE(linuxFilePtrRAII.linuxFilePtr != nullptr);
-
-                            std::array<char, 8> lineBuffer = { };
-
-                            fgets(lineBuffer.data(), lineBuffer.size(), linuxFilePtrRAII.linuxFilePtr);
-
-                            // i.e. no lsof output, which means nothing has it open
-                            REQUIRE(strnlen(lineBuffer.data(), lineBuffer.size()) == 0);
 
                             AND_WHEN("the file is reopened and read back into a buffer that previously contained all zeros") {
                                 file = signalsafe::File::open_existing(path.c_str());
@@ -106,6 +124,42 @@ SCENARIO("signalsafe::file") {
 
                                 THEN("the read data matches what was written") {
                                     REQUIRE(data == target);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    GIVEN("a path to a file that doesn't currently exist") {
+        const auto path = get_temporary_file_path(__LINE__); 
+
+        WHEN("create_and_open is called with it") {
+            auto file = signalsafe::File::create_and_open(path.c_str());
+
+            THEN("the file is open") {
+                REQUIRE(check_file_open_state(path) == FileOpenState::Open);
+
+                AND_WHEN("a file is move constructed from this file") {
+                    signalsafe::File newFile(std::move(file));
+
+                    THEN("the file is still open") {
+                        REQUIRE(check_file_open_state(path) == FileOpenState::Open);
+
+                        AND_WHEN("the original file instance's destructor is called") {
+                            file = signalsafe::File{};
+
+                            THEN("the file is still open") {
+                                REQUIRE(check_file_open_state(path) == FileOpenState::Open);
+
+                                AND_WHEN("the moved-to instance's destructor is called") {
+                                    newFile = signalsafe::File{};
+
+                                    THEN("the file is no longer open") {
+                                        REQUIRE(check_file_open_state(path) == FileOpenState::Closed);
+                                    }
                                 }
                             }
                         }
