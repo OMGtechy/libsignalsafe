@@ -6,11 +6,6 @@ set(CMAKE_CXX_STANDARD 20)
 enable_testing()
 
 option(ENABLE_COVERAGE "Enable code coverage flags." OFF)
-if(ENABLE_COVERAGE)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
-    link_libraries(gcov)
-endif()
 
 add_library(
     libsignalsafe
@@ -37,6 +32,19 @@ target_compile_options(
     -Wpedantic
     -Werror
 )
+
+if(ENABLE_COVERAGE)
+    target_compile_options(
+        libsignalsafe
+        PRIVATE
+        --coverage
+    )
+    target_link_libraries(
+        libsignalsafe
+        PRIVATE
+        gcov
+    )
+endif()
 
 add_subdirectory(test)
 
