@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD 20)
 enable_testing()
 
 option(ENABLE_COVERAGE "Enable code coverage flags." OFF)
+option(ENABLE_ASAN "Enable address sanitizer flags." OFF)
+option(ENABLE_UBSAN "Enable undefined behaviour sanitizer flags." OFF)
 
 add_library(
     libsignalsafe
@@ -43,6 +45,40 @@ if(ENABLE_COVERAGE)
         libsignalsafe
         PRIVATE
         gcov
+    )
+endif()
+
+if(ENABLE_ASAN OR ENABLE_UBSAN)
+    target_compile_options(
+        libsignalsafe
+        PUBLIC
+        -fno-omit-frame-pointer
+    )
+endif()
+
+if(ENABLE_ASAN)
+    target_compile_options(
+        libsignalsafe
+        PUBLIC
+        -fsanitize=address
+    )
+    target_link_options(
+        libsignalsafe
+        PUBLIC
+        -fsanitize=address
+    )
+endif()
+
+if(ENABLE_UBSAN)
+    target_compile_options(
+        libsignalsafe
+        PUBLIC
+        -fsanitize=undefined
+    )
+    target_link_options(
+        libsignalsafe
+        PUBLIC
+        -fsanitize=undefined
     )
 endif()
 

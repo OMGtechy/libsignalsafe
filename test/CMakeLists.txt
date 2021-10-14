@@ -10,6 +10,9 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(catch)
 
+option(ENABLE_ASAN "Enable address sanitizer flags." OFF)
+option(ENABLE_UBSAN "Enable undefined behaviour sanitizer flags." OFF)
+
 add_executable(
     libsignalsafe-test
     source/libsignalsafe-test.cpp
@@ -34,6 +37,30 @@ target_link_libraries(
     Catch2::Catch2
     libsignalsafe
 )
+
+if(ENABLE_ASAN OR ENABLE_UBSAN)
+    target_compile_options(
+        libsignalsafe
+        PRIVATE
+        -fno-omit-frame-pointer
+    )
+endif()
+
+if(ENABLE_ASAN)
+    target_compile_options(
+        libsignalsafe
+        PRIVATE
+        -fsanitize=address
+    )
+endif()
+
+if(ENABLE_UBSAN)
+    target_compile_options(
+        libsignalsafe
+        PRIVATE
+        -fsanitize=undefined
+    )
+endif()
 
 add_test(
     NAME libsignalsafe-test
