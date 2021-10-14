@@ -58,6 +58,14 @@ SCENARIO("signalsafe::file") {
         WHEN("open_existing is called") {
             auto file = File::open_existing(targetFile);
 
+            AND_WHEN("get_file_descriptor is called") {
+                const auto fd = file.get_file_descriptor();
+
+                THEN("it does not return -1") {
+                    REQUIRE(fd != -1);
+                }
+            }
+
             AND_GIVEN("a 12-byte target array initialised to 1") {
                 std::array<std::byte, 12> target;
                 target.fill(std::byte{1});
@@ -179,6 +187,18 @@ SCENARIO("signalsafe::file") {
 
             THEN("it returns false") {
                 REQUIRE(result == false);
+            }
+        }
+    }
+
+    GIVEN("a default constructed file") {
+        File file;
+
+        WHEN("get_file_descriptor is called") {
+            const auto fd = file.get_file_descriptor();
+
+            THEN("it returns -1") {
+                REQUIRE(fd == -1);
             }
         }
     }

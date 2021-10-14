@@ -132,3 +132,8 @@ bool File::close() {
         }}
     } while(true);
 }
+
+File::file_descriptor File::get_file_descriptor() const {
+    return m_fileDescriptor;
+}
+

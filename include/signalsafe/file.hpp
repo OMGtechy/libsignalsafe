@@ -21,6 +21,8 @@ namespace signalsafe {
         File(File&&);
         File& operator=(File&&);
 
+        using file_descriptor = int;
+
         //!
         //! \brief  Creates and opens a new file at the path provided.
         //!
@@ -64,8 +66,14 @@ namespace signalsafe {
         //!
         bool close();
 
+        //!
+        //! \brief  Gets the internal file descriptor.
+        //!
+        //! \returns  The internal file descriptor, or -1 if there isn't one.
+        //!
+        file_descriptor get_file_descriptor() const;
+
     private:
-        using file_descriptor = int;
 
         file_descriptor m_fileDescriptor = -1;
     };
