@@ -29,6 +29,7 @@ target_include_directories(
 target_compile_options(
     libsignalsafe
     PRIVATE
+    -fPIC
     -Wall
     -Wextra
     -Wpedantic
