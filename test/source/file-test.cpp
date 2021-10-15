@@ -1,4 +1,4 @@
-#include "libsignalsafe-test.hpp"
+#include "signalsafe-test.hpp"
 #include "signalsafe/file.hpp"
 
 #include <cstddef>
@@ -41,7 +41,7 @@ namespace {
 
     std::filesystem::path get_temporary_file_path(const size_t lineNumber) {
         auto path = std::filesystem::temp_directory_path();
-        path.concat("/libsignalsafe-test-test-" + std::to_string(lineNumber));
+        path.concat("/signalsafe-test-" + std::to_string(lineNumber));
 
         std::filesystem::remove(path);
 

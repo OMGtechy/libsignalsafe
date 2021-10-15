@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(libsignalsafe VERSION 0.0.1 LANGUAGES CXX)
+project(signalsafe VERSION 0.0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -10,24 +10,18 @@ option(ENABLE_ASAN "Enable address sanitizer flags." OFF)
 option(ENABLE_UBSAN "Enable undefined behaviour sanitizer flags." OFF)
 
 add_library(
-    libsignalsafe
+    signalsafe
     source/file.cpp
 )
 
-set_target_properties(
-    libsignalsafe
-    PROPERTIES
-    PREFIX ""
-)
-
 target_include_directories(
-    libsignalsafe
+    signalsafe
     PUBLIC
     include
 )
 
 target_compile_options(
-    libsignalsafe
+    signalsafe
     PRIVATE
     -fPIC
     -Wall
@@ -38,12 +32,12 @@ target_compile_options(
 
 if(ENABLE_COVERAGE)
     target_compile_options(
-        libsignalsafe
+        signalsafe
         PRIVATE
         --coverage
     )
     target_link_libraries(
-        libsignalsafe
+        signalsafe
         PRIVATE
         gcov
     )
@@ -51,7 +45,7 @@ endif()
 
 if(ENABLE_ASAN OR ENABLE_UBSAN)
     target_compile_options(
-        libsignalsafe
+        signalsafe
         PUBLIC
         -fno-omit-frame-pointer
     )
@@ -59,12 +53,12 @@ endif()
 
 if(ENABLE_ASAN)
     target_compile_options(
-        libsignalsafe
+        signalsafe
         PUBLIC
         -fsanitize=address
     )
     target_link_options(
-        libsignalsafe
+        signalsafe
         PUBLIC
         -fsanitize=address
     )
@@ -72,12 +66,12 @@ endif()
 
 if(ENABLE_UBSAN)
     target_compile_options(
-        libsignalsafe
+        signalsafe
         PUBLIC
         -fsanitize=undefined
     )
     target_link_options(
-        libsignalsafe
+        signalsafe
         PUBLIC
         -fsanitize=undefined
     )

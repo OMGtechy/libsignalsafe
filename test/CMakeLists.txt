@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(libsignalsafe-test LANGUAGES CXX)
+project(signalsafe-test LANGUAGES CXX)
 
 include(FetchContent)
 FetchContent_Declare(
@@ -14,13 +14,13 @@ option(ENABLE_ASAN "Enable address sanitizer flags." OFF)
 option(ENABLE_UBSAN "Enable undefined behaviour sanitizer flags." OFF)
 
 add_executable(
-    libsignalsafe-test
-    source/libsignalsafe-test.cpp
+    signalsafe-test
+    source/signalsafe-test.cpp
     source/file-test.cpp
 )
 
 target_compile_options(
-    libsignalsafe-test PRIVATE
+    signalsafe-test PRIVATE
     -Wall
     -Wextra
     -Wpedantic
@@ -28,19 +28,19 @@ target_compile_options(
 )
 
 target_include_directories(
-    libsignalsafe-test PRIVATE
+    signalsafe-test PRIVATE
     include
 )
 
 target_link_libraries(
-    libsignalsafe-test
+    signalsafe-test
     Catch2::Catch2
-    libsignalsafe
+    signalsafe
 )
 
 if(ENABLE_ASAN OR ENABLE_UBSAN)
     target_compile_options(
-        libsignalsafe
+        signalsafe
         PRIVATE
         -fno-omit-frame-pointer
     )
@@ -48,7 +48,7 @@ endif()
 
 if(ENABLE_ASAN)
     target_compile_options(
-        libsignalsafe
+        signalsafe
         PRIVATE
         -fsanitize=address
     )
@@ -56,14 +56,14 @@ endif()
 
 if(ENABLE_UBSAN)
     target_compile_options(
-        libsignalsafe
+        signalsafe
         PRIVATE
         -fsanitize=undefined
     )
 endif()
 
 add_test(
-    NAME libsignalsafe-test
-    COMMAND $<TARGET_FILE:libsignalsafe-test>
+    NAME signalsafe-test
+    COMMAND $<TARGET_FILE:signalsafe-test>
 )
 
