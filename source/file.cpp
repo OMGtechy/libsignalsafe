@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <cerrno>
+#include <filesystem>
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -31,19 +32,28 @@ File& File::operator=(File&& other) {
     return *this;
 }
 
-File File::create_and_open(std::string_view path) {
+File File::create_and_open(std::string_view path, Permissions permissions) {
     File file;
 
-    file.m_fileDescriptor = ::open(path.data(), O_RDWR | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
+    file.m_fileDescriptor = ::open(
+        path.data(),
+        static_cast<std::underlying_type_t<decltype(permissions)>>(permissions) | O_CREAT | O_EXCL,
+        S_IRUSR | S_IWUSR
+    );
+
     assert(file.m_fileDescriptor != -1);
 
     return file;
 }
 
-File File::open_existing(std::string_view path) {
+File File::open_existing(std::string_view path, Permissions permissions) {
     File file;
 
-    file.m_fileDescriptor = ::open(path.data(), O_RDONLY);
+    file.m_fileDescriptor = ::open(
+        path.data(),
+        static_cast<std::underlying_type_t<decltype(permissions)>>(permissions)
+    );
+
     assert(file.m_fileDescriptor != -1);
 
     return file;

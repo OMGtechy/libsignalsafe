@@ -55,8 +55,8 @@ SCENARIO("signalsafe::file") {
     GIVEN("/dev/zero as a the target file path") {
         constexpr char targetFile[] = "/dev/zero";
 
-        WHEN("open_existing is called") {
-            auto file = File::open_existing(targetFile);
+        WHEN("open_existing is called with read-only permissions") {
+            auto file = File::open_existing(targetFile, File::Permissions::ReadOnly);
 
             AND_WHEN("get_file_descriptor is called") {
                 const auto fd = file.get_file_descriptor();
@@ -98,8 +98,8 @@ SCENARIO("signalsafe::file") {
     GIVEN("a path to a file that doesn't currently exist") {
         const auto path = get_temporary_file_path(__LINE__);
 
-        WHEN("create_and_open is called with it") {
-            auto file = File::create_and_open(path.c_str());
+        WHEN("create_and_open is called with write-only permissions") {
+            auto file = File::create_and_open(path.c_str(), File::Permissions::WriteOnly);
 
             THEN("the file exists") {
                 REQUIRE(std::filesystem::exists(path));
@@ -125,7 +125,7 @@ SCENARIO("signalsafe::file") {
                         THEN("lsof reports the file isn't open") {
 
                             AND_WHEN("the file is reopened and read back into a buffer that previously contained all zeros") {
-                                file = File::open_existing(path.c_str());
+                                file = File::open_existing(path.c_str(), File::Permissions::ReadOnly);
 
                                 std::array<std::byte, 5> target;
                                 target.fill(std::byte{0});
@@ -146,8 +146,8 @@ SCENARIO("signalsafe::file") {
     GIVEN("a path to a file that doesn't currently exist") {
         const auto path = get_temporary_file_path(__LINE__); 
 
-        WHEN("create_and_open is called with it") {
-            auto file = File::create_and_open(path.c_str());
+        WHEN("create_and_open is called with read-only permissions") {
+            auto file = File::create_and_open(path.c_str(), File::Permissions::ReadOnly);
 
             THEN("the file is open") {
                 REQUIRE(check_file_open_state(path) == FileOpenState::Open);

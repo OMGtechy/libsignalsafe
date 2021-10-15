@@ -1,8 +1,11 @@
 #pragma once
 
 #include <cstddef>
+#include <filesystem>
 #include <span>
 #include <string_view>
+
+#include <fcntl.h>
 
 namespace signalsafe {
     class File {
@@ -23,23 +26,31 @@ namespace signalsafe {
 
         using file_descriptor = int;
 
+        enum class Permissions : decltype(O_RDWR) {
+            ReadOnly = O_RDONLY,
+            WriteOnly = O_WRONLY,
+            ReadWrite = O_RDWR
+        };
+
         //!
         //! \brief  Creates and opens a new file at the path provided.
         //!
-        //! \param[in]  path  The path of the file to be created.
+        //! \param[in]  path         The path of the file to be created.
+        //! \param[in]  permissions  The permissions to create the file with.
         //!
         //! \returns  The created file, opened.
         //!
-        static File create_and_open(std::string_view path);
+        static File create_and_open(std::string_view path, Permissions permissions);
 
         //!
         //! \brief  Opens an existing file at the path provided.
         //!
-        //! \param[in]  path  The path to the file to be opened (must be null terminated).
+        //! \param[in]  path         The path to the file to be opened (must be null terminated).
+        //! \param[in]  permissions  The permissions to create the file with.
         //!
         //! \returns  The opened file.
         //!
-        static File open_existing(std::string_view path);
+        static File open_existing(std::string_view path, Permissions permissions);
 
         //!
         //! \brief  Reads the requested bytes into the target.
