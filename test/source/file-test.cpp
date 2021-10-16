@@ -202,5 +202,109 @@ SCENARIO("signalsafe::file") {
             }
         }
     }
+
+    GIVEN("5 non-zero bytes") {
+        constexpr std::array<std::byte, 5> data = {
+            std::byte{1},
+            std::byte{2},
+            std::byte{3},
+            std::byte{5},
+            std::byte{8}
+        };
+
+        WHEN("create_and_open_temporary is called") {
+            File file = File::create_and_open_temporary();
+
+            AND_WHEN("write is called") {
+                {
+                    const auto bytesWritten = file.write(data);
+
+                    THEN("5 bytes are written") {
+                        REQUIRE(bytesWritten == 5);
+                    }
+                }
+
+                AND_WHEN("seek is called to get back to the start of the file") {
+                    {
+                        const auto offset = file.seek(0, File::OffsetInterpretation::Absolute);
+
+                        THEN("it returns 0") {
+                            REQUIRE(offset == 0);
+                        }
+                    }
+
+                    AND_WHEN("it is read back") {
+                        {
+                            std::array<std::byte, 5> readBack;
+                            readBack.fill(std::byte{0});
+
+                            const auto bytesRead = file.read(readBack);
+
+                            THEN("5 bytes are read") {
+                                REQUIRE(bytesRead == 5);
+                            }
+
+                            THEN("it matches the data written") {
+                                REQUIRE(data == readBack);
+                            }
+                        }
+
+                        AND_WHEN("seek is called to go back 4 bytes") {
+                            {
+                                const auto offset = file.seek(-4, File::OffsetInterpretation::RelativeToCurrentPosition);
+
+                                THEN("it returns 1") {
+                                    REQUIRE(offset == 1);
+                                }
+                            }
+
+                            AND_WHEN("2 bytes are read back") {
+                                {
+                                    std::array<std::byte, 2> readBack;
+                                    readBack.fill(std::byte{0});
+
+                                    const auto bytesRead = file.read(readBack);
+
+                                    THEN("2 bytes are read") {
+                                        REQUIRE(bytesRead == 2);
+                                    }
+
+                                    THEN("they match what was written to that part of the file") {
+                                        REQUIRE(readBack[0] == data[1]);
+                                        REQUIRE(readBack[1] == data[2]);
+                                    }
+                                }
+
+                                AND_WHEN("seek is called to go to one before the end of the file") {
+                                    {
+                                        const auto offset = file.seek(-1, File::OffsetInterpretation::RelativeToEndOfFile);
+
+                                        THEN("it returns 4") {
+                                            REQUIRE(offset == 4);
+                                        }
+                                    }
+
+                                    AND_WHEN("the last byte of the file is read") {
+                                        {
+                                            auto lastByte = std::byte{0};
+                                            const auto bytesRead = file.read({ &lastByte, 1 });
+
+                                            THEN("1 byte is read") {
+                                                REQUIRE(bytesRead == 1);
+                                            }
+
+                                            THEN("it matches what was written") {
+                                                REQUIRE(lastByte == data.back());
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 

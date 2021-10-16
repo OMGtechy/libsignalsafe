@@ -26,6 +26,12 @@ namespace signalsafe {
 
         using file_descriptor = int;
 
+        enum class OffsetInterpretation : decltype(SEEK_SET) {
+            Absolute = SEEK_SET,
+            RelativeToCurrentPosition = SEEK_CUR,
+            RelativeToEndOfFile = SEEK_END
+        };
+
         enum class Permissions : decltype(O_RDWR) {
             ReadOnly = O_RDONLY,
             WriteOnly = O_WRONLY,
@@ -41,6 +47,13 @@ namespace signalsafe {
         //! \returns  The created file, opened.
         //!
         static File create_and_open(std::string_view path, Permissions permissions);
+
+        //!
+        //! \brief  Creates and opens a new temporary file.
+        //!
+        //! \returns  The created file, opened.
+        //!
+        static File create_and_open_temporary();
 
         //!
         //! \brief  Opens an existing file at the path provided.
@@ -76,6 +89,16 @@ namespace signalsafe {
         //! \returns  True if successful, false otherwise.
         //!
         bool close();
+
+        //!
+        //! \brief  Changes the read/write file offset.
+        //!
+        //! \param[in]  offset                The offset to set the file to.
+        //! \param[in]  offsetInterpretation  How to intepret the offset.
+        //!
+        //! \returns  The new offset, or -1 if an error occured.
+        //!
+        off_t seek(off_t offset, OffsetInterpretation offsetInterpretation);
 
         //!
         //! \brief  Gets the internal file descriptor.

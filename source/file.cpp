@@ -46,6 +46,20 @@ File File::create_and_open(std::string_view path, Permissions permissions) {
     return file;
 }
 
+File File::create_and_open_temporary() {
+    File file;
+
+    file.m_fileDescriptor = ::open(
+        "/tmp",
+        O_TMPFILE | O_RDWR,
+        S_IRUSR | S_IWUSR
+    );
+
+    assert(file.m_fileDescriptor != -1);
+
+    return file;
+}
+
 File File::open_existing(std::string_view path, Permissions permissions) {
     File file;
 
@@ -141,6 +155,10 @@ bool File::close() {
             return false;
         }}
     } while(true);
+}
+
+off_t File::seek(const off_t offset, const OffsetInterpretation offsetInterpretation) {
+    return ::lseek(m_fileDescriptor, offset, static_cast<std::underlying_type_t<OffsetInterpretation>>(offsetInterpretation));
 }
 
 File::file_descriptor File::get_file_descriptor() const {
