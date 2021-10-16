@@ -251,6 +251,41 @@ SCENARIO("signalsafe::file") {
         }
     }
 
+    GIVEN("a non-zero 4-byte unsigned integer") {
+        const uint32_t integer = 0xFF00FFAA;
+
+        WHEN("create_and_open_temporary is called") {
+            File file = File::create_and_open_temporary();
+
+            AND_WHEN("the integer is it written to the file") {
+                {
+                    const auto bytesWritten = file.write(integer);
+
+                    THEN("it reports 4 bytes were written") {
+                        REQUIRE(bytesWritten == 4);
+                    }
+                }
+
+                AND_WHEN("seek is called back to the start of the file") {
+                    file.seek(0, File::OffsetInterpretation::Absolute);
+
+                    AND_WHEN("the integer is read back") {
+                        uint32_t readBackInteger = 0;
+                        const auto bytesRead = file.read(readBackInteger);
+
+                        THEN("4 bytes are reported to be read") {
+                            REQUIRE(bytesRead == 4);
+                        }
+
+                        THEN("the read back integer matches what was written") {
+                            REQUIRE(readBackInteger == integer);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     GIVEN("5 non-zero bytes") {
         constexpr std::array<std::byte, 5> data = {
             std::byte{1},

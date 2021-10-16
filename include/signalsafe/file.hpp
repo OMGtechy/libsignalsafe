@@ -1,6 +1,7 @@
 #pragma once
 
 #include <climits>
+#include <concepts>
 #include <cstddef>
 #include <filesystem>
 #include <span>
@@ -76,13 +77,41 @@ namespace signalsafe {
         std::size_t read(std::span<std::byte> target);
 
         //!
-        //! \brief  Writes the requested bytes to the target.
+        //! \brief  Reads sizeof(T) bytes into the target.
+        //!
+        //! \tparam  T  The type of the target.
+        //!
+        //! \param[in]  target  Where to write the read bytes.
+        //!
+        //! \returns  The number of bytes read.
+        //!
+        template <typename T>
+        std::size_t read(T& target) requires std::integral<T> {
+            return read(std::span<std::byte, sizeof(T)>(reinterpret_cast<std::byte*>(&target), sizeof(T)));
+        }
+
+        //!
+        //! \brief  Writes the provided bytes to the file.
         //!
         //! \param[in]  source  Where to read the bytes from.
         //!
         //! \returns  The number of bytes written.
         //!
         std::size_t write(std::span<const std::byte> source);
+
+        //!
+        //! \brief  Writes sizeof(T) bytes to the target.
+        //!
+        //! \tparam  T  The type of the source.
+        //!
+        //! \param[in]  Where to read the bytes from.
+        //!
+        //! \returns  The number of bytes written.
+        //!
+        template <typename T>
+        std::size_t write(const T& source) requires std::integral<T> {
+            return write(std::span<const std::byte, sizeof(T)>(reinterpret_cast<const std::byte*>(&source), sizeof(T)));
+        }
 
         //!
         //! \brief  Closes the file.
