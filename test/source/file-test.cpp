@@ -53,10 +53,18 @@ namespace {
 
 SCENARIO("signalsafe::file") {
     GIVEN("/dev/zero as a the target file path") {
-        constexpr char targetFile[] = "/dev/zero";
+        const std::string targetFile = "/dev/zero";
 
         WHEN("open_existing is called with read-only permissions") {
             auto file = File::open_existing(targetFile, File::Permissions::ReadOnly);
+
+            AND_WHEN("get_path is called") {
+                const auto path = file.get_path();
+
+                THEN("it matches the path provided") {
+                    REQUIRE(path == targetFile);
+                }
+            }
 
             AND_WHEN("get_file_descriptor is called") {
                 const auto fd = file.get_file_descriptor();
@@ -100,6 +108,14 @@ SCENARIO("signalsafe::file") {
 
         WHEN("create_and_open is called with write-only permissions") {
             auto file = File::create_and_open(path.c_str(), File::Permissions::WriteOnly);
+
+            AND_WHEN("get_path is called") {
+                const auto returnedPath = file.get_path();
+
+                THEN("it matches the path provided") {
+                    REQUIRE(returnedPath == path);
+                }
+            }
 
             THEN("the file exists") {
                 REQUIRE(std::filesystem::exists(path));
@@ -149,11 +165,35 @@ SCENARIO("signalsafe::file") {
         WHEN("create_and_open is called with read-only permissions") {
             auto file = File::create_and_open(path.c_str(), File::Permissions::ReadOnly);
 
+            AND_WHEN("get_path is called") {
+                const auto returnedPath = file.get_path();
+
+                THEN("it matches the path provided") {
+                    REQUIRE(returnedPath == path);
+                }
+            }
+
             THEN("the file is open") {
                 REQUIRE(check_file_open_state(path) == FileOpenState::Open);
 
                 AND_WHEN("a file is move constructed from this file") {
                     File newFile(std::move(file));
+
+                    AND_WHEN("get_path is called on the moved-from file") {
+                        const auto returnedPath = file.get_path();
+
+                        THEN("it returns an empty string") {
+                            REQUIRE(returnedPath.empty());
+                        }
+                    }
+
+                    AND_WHEN("get_path is called on the moved-to file") {
+                        const auto returnedPath = newFile.get_path();
+
+                        THEN("it matches the original path") {
+                            REQUIRE(returnedPath == path);
+                        }
+                    }
 
                     THEN("the file is still open") {
                         REQUIRE(check_file_open_state(path) == FileOpenState::Open);
@@ -201,6 +241,14 @@ SCENARIO("signalsafe::file") {
                 REQUIRE(fd == -1);
             }
         }
+
+        AND_WHEN("get_path is called") {
+            const auto path = file.get_path();
+
+            THEN("it returns an empty string") {
+                REQUIRE(path.empty());
+            }
+        }
     }
 
     GIVEN("5 non-zero bytes") {
@@ -214,6 +262,14 @@ SCENARIO("signalsafe::file") {
 
         WHEN("create_and_open_temporary is called") {
             File file = File::create_and_open_temporary();
+
+            AND_WHEN("get_path is called") {
+                const auto path = file.get_path();
+
+                THEN("it returns an empty string") {
+                    REQUIRE(path.empty());
+                }
+            }
 
             AND_WHEN("write is called") {
                 {

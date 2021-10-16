@@ -1,5 +1,6 @@
 #pragma once
 
+#include <climits>
 #include <cstddef>
 #include <filesystem>
 #include <span>
@@ -107,8 +108,17 @@ namespace signalsafe {
         //!
         file_descriptor get_file_descriptor() const;
 
-    private:
+        //!
+        //! \brief  Gets the path associated with the open file.
+        //!
+        //! \returns  The open file path, or an empty string if there isn't one.
+        //!
+        //! \note  A temporary file may not have a path associated with it.
+        //!
+        std::string_view get_path() const;
 
+    private:
+        std::array<char, PATH_MAX + 1 /* null terminator */> m_path = { };
         file_descriptor m_fileDescriptor = -1;
     };
 }

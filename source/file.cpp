@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <cerrno>
+#include <cstring>
 #include <filesystem>
 
 #include <fcntl.h>
@@ -29,6 +30,9 @@ File& File::operator=(File&& other) {
     this->m_fileDescriptor = other.m_fileDescriptor;
     other.m_fileDescriptor = -1;
 
+    this->m_path = other.m_path;
+    other.m_path.fill('\0');
+
     return *this;
 }
 
@@ -42,6 +46,8 @@ File File::create_and_open(std::string_view path, Permissions permissions) {
     );
 
     assert(file.m_fileDescriptor != -1);
+
+    ::strncpy(file.m_path.data(), path.data(), std::min(file.m_path.size(), path.size()));
 
     return file;
 }
@@ -69,6 +75,8 @@ File File::open_existing(std::string_view path, Permissions permissions) {
     );
 
     assert(file.m_fileDescriptor != -1);
+
+    ::strncpy(file.m_path.data(), path.data(), std::min(file.m_path.size(), path.size()));
 
     return file;
 }
@@ -163,5 +171,9 @@ off_t File::seek(const off_t offset, const OffsetInterpretation offsetInterpreta
 
 File::file_descriptor File::get_file_descriptor() const {
     return m_fileDescriptor;
+}
+
+std::string_view File::get_path() const {
+    return { m_path.data(), strnlen(m_path.data(), m_path.size() - 1 /* null terminator */)};
 }
 
