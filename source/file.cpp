@@ -110,7 +110,7 @@ std::size_t File::read(std::span<std::byte> target) {
         }
 
         const auto newBytesRead = static_cast<std::size_t>(newBytesReadOrError);
-        target = decltype(target)(target.data() + newBytesRead, target.size() - newBytesRead);
+        target = target.last(target.size() - newBytesRead);
         bytesRead += newBytesRead;
     }
 
@@ -143,7 +143,7 @@ std::size_t File::write(std::span<const std::byte> source) {
         }
 
         const auto newBytesWritten = static_cast<std::size_t>(newBytesWrittenOrError);
-        source = decltype(source)(source.data() + newBytesWritten, source.size() - newBytesWritten);
+        source = source.last(source.size() - newBytesWritten);
         bytesWritten += static_cast<size_t>(newBytesWritten);
     }
 
