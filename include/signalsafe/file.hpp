@@ -123,6 +123,13 @@ namespace signalsafe {
         bool close();
 
         //!
+        //! \brief  Removes (a.k.a. deletes) the file.
+        //!
+        //! \returns  True if successful, false otherwise.
+        //!
+        bool remove();
+
+        //!
         //! \brief  Changes the read/write file offset.
         //!
         //! \param[in]  offset                The offset to set the file to.

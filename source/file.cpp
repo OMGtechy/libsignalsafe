@@ -173,6 +173,20 @@ bool File::close() {
     } while(true);
 }
 
+bool File::remove() {
+    if(m_fileDescriptor == -1 || m_path[0] == '\0') {
+        return false;
+    }
+
+    const auto result = ::unlink(m_path.data()) == 0;
+
+    if(result) {
+        m_path.fill('\0');
+    }
+
+    return result;
+}
+
 off_t File::seek(const off_t offset, const OffsetInterpretation offsetInterpretation) {
     return ::lseek(m_fileDescriptor, offset, static_cast<std::underlying_type_t<OffsetInterpretation>>(offsetInterpretation));
 }

@@ -98,6 +98,22 @@ SCENARIO("signalsafe::file") {
                         REQUIRE(target[9]  == std::byte{0});
                         REQUIRE(target[10] == std::byte{0});
                     }
+
+                    AND_WHEN("remove is called") {
+                        const auto removed = file.remove();
+
+                        THEN("it fails (because it's /dev/zero)") {
+                            REQUIRE(! removed);
+                        }
+
+                        AND_WHEN("get_path is called") {
+                            const auto returnedPath = file.get_path();
+
+                            THEN("it still contains /dev/zero") {
+                                REQUIRE(returnedPath == targetFile);
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -150,6 +166,26 @@ SCENARIO("signalsafe::file") {
 
                                 THEN("the read data matches what was written") {
                                     REQUIRE(data == target);
+                                }
+
+                                AND_WHEN("remove is called") {
+                                    const bool removed = file.remove();
+
+                                    THEN("it returns success") {
+                                        REQUIRE(removed);
+                                    }
+
+                                    THEN("the file no longer exists") {
+                                        REQUIRE(! std::filesystem::exists(path));
+                                    }
+
+                                    AND_WHEN("get_path is called") {
+                                        const auto returnedPath = file.get_path();
+
+                                        THEN("it returns an empty string") {
+                                            REQUIRE(returnedPath.empty());
+                                        }
+                                    }
                                 }
                             }
                         }
