@@ -75,6 +75,7 @@ namespace signalsafe {
         //! \returns  The number of bytes read.
         //!
         std::size_t read(std::span<std::byte> target);
+        std::size_t read(std::span<char> target);
 
         //!
         //! \brief  Reads sizeof(T) bytes into the target.
@@ -98,6 +99,7 @@ namespace signalsafe {
         //! \returns  The number of bytes written.
         //!
         std::size_t write(std::span<const std::byte> source);
+        std::size_t write(std::span<const char> source);
 
         //!
         //! \brief  Writes sizeof(T) bytes to the target.

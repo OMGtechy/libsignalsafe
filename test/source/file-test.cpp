@@ -286,6 +286,40 @@ SCENARIO("signalsafe::file") {
         }
     }
 
+    GIVEN("some chars in a c-style array") {
+        const char source[] = "hi there";
+
+        WHEN("create_and_open_temporary is called") {
+            File file = File::create_and_open_temporary();
+
+            AND_WHEN("the chars are written to the file") {
+                const auto bytesWritten = file.write(source);
+
+                THEN("the expected number of bytes is written") {
+                    REQUIRE(bytesWritten == sizeof(source));
+                }
+
+                AND_WHEN("the file offset is set back to the start") {
+                    file.seek(0, File::OffsetInterpretation::Absolute);
+
+                    AND_WHEN("the data is read back") {
+                        char target[sizeof(source)] = { };
+                        const auto bytesRead = file.read(target);
+
+                        THEN("the number of bytes read is correct") {
+                            REQUIRE(bytesRead == sizeof(target));
+                        }
+
+                        THEN("the data matches what was written") {
+                            static_assert(sizeof(source) == sizeof(target));
+                            REQUIRE(memcmp(source, target, sizeof(source)) == 0);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     GIVEN("5 non-zero bytes") {
         constexpr std::array<std::byte, 5> data = {
             std::byte{1},
