@@ -155,6 +155,11 @@ namespace signalsafe {
         //!
         std::string_view get_path() const;
 
+    protected:
+        void create_and_open_internal(std::string_view path, Permissions permissions);
+        void create_and_open_temporary_internal();
+        void open_existing_internal(std::string_view path, Permissions permissions);
+ 
     private:
         std::array<char, PATH_MAX + 1 /* null terminator */> m_path = { };
         file_descriptor m_fileDescriptor = -1;

@@ -38,47 +38,53 @@ File& File::operator=(File&& other) {
 
 File File::create_and_open(std::string_view path, Permissions permissions) {
     File file;
+    file.create_and_open_internal(path, permissions);
+    return file;
+}
 
-    file.m_fileDescriptor = ::open(
+void File::create_and_open_internal(std::string_view path, Permissions permissions) {
+    m_fileDescriptor = ::open(
         path.data(),
         static_cast<std::underlying_type_t<decltype(permissions)>>(permissions) | O_CREAT | O_EXCL,
         S_IRUSR | S_IWUSR
     );
 
-    assert(file.m_fileDescriptor != -1);
+    assert(m_fileDescriptor != -1);
 
-    ::strncpy(file.m_path.data(), path.data(), std::min(file.m_path.size(), path.size()));
-
-    return file;
+    ::strncpy(m_path.data(), path.data(), std::min(m_path.size(), path.size()));
 }
 
 File File::create_and_open_temporary() {
     File file;
+    file.create_and_open_temporary_internal();
+    return file;
+}
 
-    file.m_fileDescriptor = ::open(
+void File::create_and_open_temporary_internal() {
+    m_fileDescriptor = ::open(
         "/tmp",
         O_TMPFILE | O_RDWR,
         S_IRUSR | S_IWUSR
     );
 
-    assert(file.m_fileDescriptor != -1);
-
-    return file;
+    assert(m_fileDescriptor != -1);
 }
 
 File File::open_existing(std::string_view path, Permissions permissions) {
     File file;
+    file.open_existing_internal(path, permissions);
+    return file;
+}
 
-    file.m_fileDescriptor = ::open(
+void File::open_existing_internal(std::string_view path, Permissions permissions) {
+    m_fileDescriptor = ::open(
         path.data(),
         static_cast<std::underlying_type_t<decltype(permissions)>>(permissions)
     );
 
-    assert(file.m_fileDescriptor != -1);
+    assert(m_fileDescriptor != -1);
 
-    ::strncpy(file.m_path.data(), path.data(), std::min(file.m_path.size(), path.size()));
-
-    return file;
+    ::strncpy(m_path.data(), path.data(), std::min(m_path.size(), path.size()));
 }
 
 std::size_t File::read(std::span<std::byte> target) {
