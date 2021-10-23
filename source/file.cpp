@@ -197,7 +197,7 @@ off_t File::seek(const off_t offset, const OffsetInterpretation offsetInterpreta
     return ::lseek(m_fileDescriptor, offset, static_cast<std::underlying_type_t<OffsetInterpretation>>(offsetInterpretation));
 }
 
-File::file_descriptor File::get_file_descriptor() const {
+File::file_descriptor_t File::get_file_descriptor() const {
     return m_fileDescriptor;
 }
 

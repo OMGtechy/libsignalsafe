@@ -26,7 +26,7 @@ namespace signalsafe {
         File(File&&);
         File& operator=(File&&);
 
-        using file_descriptor = int;
+        using file_descriptor_t = int;
 
         enum class OffsetInterpretation : decltype(SEEK_SET) {
             Absolute = SEEK_SET,
@@ -144,7 +144,7 @@ namespace signalsafe {
         //!
         //! \returns  The internal file descriptor, or -1 if there isn't one.
         //!
-        file_descriptor get_file_descriptor() const;
+        file_descriptor_t get_file_descriptor() const;
 
         //!
         //! \brief  Gets the path associated with the open file.
@@ -162,6 +162,6 @@ namespace signalsafe {
  
     private:
         std::array<char, PATH_MAX + 1 /* null terminator */> m_path = { };
-        file_descriptor m_fileDescriptor = -1;
+        file_descriptor_t m_fileDescriptor = -1;
     };
 }
