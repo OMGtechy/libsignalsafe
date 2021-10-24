@@ -194,4 +194,7 @@ namespace signalsafe {
         file_descriptor_t m_fileDescriptor = -1;
         DestroyAction m_destroyAction = DestroyAction::Close;
     };
+
+    File& standard_output();
+    File& standard_error();
 }

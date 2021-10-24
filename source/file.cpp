@@ -233,3 +233,23 @@ void File::set_destroy_action(const DestroyAction destroyAction) {
     m_destroyAction = destroyAction;
 }
 
+File& signalsafe::standard_output() {
+    static auto instance = [](){
+        auto f = File::from_file_descriptor(STDOUT_FILENO);
+        f.set_destroy_action(File::DestroyAction::Nothing);
+        return f;
+    }();
+
+    return instance;
+}
+
+File& signalsafe::standard_error() {
+    static auto instance = [](){
+        auto f = File::from_file_descriptor(STDERR_FILENO);
+        f.set_destroy_action(File::DestroyAction::Nothing);
+        return f;
+    }();
+
+    return instance;
+}
+

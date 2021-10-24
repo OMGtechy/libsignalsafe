@@ -56,6 +56,30 @@ namespace {
 }
 
 SCENARIO("signalsafe::file") {
+    GIVEN("a c-string") {
+        const char str[] = "Testing STDOUT works\n";
+
+        WHEN("it is written to standard_output") {
+            const auto bytesWritten = signalsafe::standard_output().write(str);
+
+            THEN("the number of bytes written is correct") {
+                REQUIRE(bytesWritten == sizeof(str));
+            }
+        }
+    }
+
+    GIVEN("a c-string") {
+        const char str[] = "Testing STDERR works\n";
+
+        WHEN("it is written to standard_error") {
+            const auto bytesWritten = signalsafe::standard_error().write(str);
+
+            THEN("the number of bytes written is correct") {
+                REQUIRE(bytesWritten == sizeof(str));
+            }
+        }
+    }
+
     WHEN("create_and_open_temporary is called") {
         auto file = std::make_unique<File>(File::create_and_open_temporary());
 
