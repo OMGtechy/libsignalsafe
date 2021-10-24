@@ -10,11 +10,21 @@
 
 using signalsafe::File;
 
-File::~File() {
-    if(m_fileDescriptor != -1) {
-        const auto closeSuccess = this->close();
-        assert(closeSuccess);
+namespace {
+    void destroy(File& file) {
+        switch(file.get_destroy_action()) {
+        case File::DestroyAction::Nothing: return;
+        case File::DestroyAction::Close: {
+            if (file.get_file_descriptor() != -1) {
+                const auto closeSuccess = file.close();
+                assert(closeSuccess);
+            }
+        }}
     }
+}
+
+File::~File() {
+    destroy(*this);
 }
 
 File::File(File&& other) {
@@ -22,16 +32,16 @@ File::File(File&& other) {
 }
 
 File& File::operator=(File&& other) {
-    if(m_fileDescriptor != -1) {
-        const auto closeSuccess = this->close();
-        assert(closeSuccess);
-    }
+    destroy(*this);
 
     this->m_fileDescriptor = other.m_fileDescriptor;
     other.m_fileDescriptor = -1;
 
     this->m_path = other.m_path;
     other.m_path.fill('\0');
+
+    this->m_destroyAction = other.m_destroyAction;
+    other.m_destroyAction = DestroyAction::Close;
 
     return *this;
 }
@@ -85,6 +95,16 @@ void File::open_existing_internal(std::string_view path, Permissions permissions
     assert(m_fileDescriptor != -1);
 
     ::strncpy(m_path.data(), path.data(), std::min(m_path.size(), path.size()));
+}
+
+File File::from_file_descriptor(const file_descriptor_t fd) {
+    File file;
+    file.from_file_descriptor_internal(fd);
+    return file;
+}
+
+void File::from_file_descriptor_internal(const file_descriptor_t fd) {
+    m_fileDescriptor = fd;
 }
 
 std::size_t File::read(std::span<std::byte> target) {
@@ -203,5 +223,13 @@ File::file_descriptor_t File::get_file_descriptor() const {
 
 std::string_view File::get_path() const {
     return { m_path.data(), strnlen(m_path.data(), m_path.size() - 1 /* null terminator */)};
+}
+
+File::DestroyAction File::get_destroy_action() const {
+    return m_destroyAction;
+}
+
+void File::set_destroy_action(const DestroyAction destroyAction) {
+    m_destroyAction = destroyAction;
 }
 

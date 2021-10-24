@@ -40,6 +40,11 @@ namespace signalsafe {
             ReadWrite = O_RDWR
         };
 
+        enum class DestroyAction {
+            Nothing,
+            Close
+        };
+
         //!
         //! \brief  Creates and opens a new file at the path provided.
         //!
@@ -66,6 +71,15 @@ namespace signalsafe {
         //! \returns  The opened file.
         //!
         static File open_existing(std::string_view path, Permissions permissions);
+
+        //!
+        //! \brief  Creates a File instance from an existing file descriptor.
+        //!
+        //! \param[in]  fd  The file desriptor to associated the instance with.
+        //!
+        //! \returns  A file associated with the provided file descriptor.
+        //!
+        static File from_file_descriptor(file_descriptor_t fd);
 
         //!
         //! \brief  Reads the requested bytes into the target.
@@ -155,13 +169,29 @@ namespace signalsafe {
         //!
         std::string_view get_path() const;
 
+        //!
+        //! \brief  Gets the destroy action.
+        //!
+        //! \returns  The destroy action.
+        //!
+        DestroyAction get_destroy_action() const;
+
+        //!
+        //! \brief  Sets the destroy action.
+        //!
+        //! \param[in]  destroyAction  The new destroy action.
+        //!
+        void set_destroy_action(DestroyAction destroyAction);
+
     protected:
         void create_and_open_internal(std::string_view path, Permissions permissions);
         void create_and_open_temporary_internal();
         void open_existing_internal(std::string_view path, Permissions permissions);
+        void from_file_descriptor_internal(file_descriptor_t fd);
  
     private:
         std::array<char, PATH_MAX + 1 /* null terminator */> m_path = { };
         file_descriptor_t m_fileDescriptor = -1;
+        DestroyAction m_destroyAction = DestroyAction::Close;
     };
 }

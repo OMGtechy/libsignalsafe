@@ -49,9 +49,49 @@ namespace {
 
         return path;
     }
+
+    bool is_fd_valid(int fd) {
+        return fcntl(fd, F_GETFD) != -1;
+    }
 }
 
 SCENARIO("signalsafe::file") {
+    WHEN("create_and_open_temporary is called") {
+        auto file = std::make_unique<File>(File::create_and_open_temporary());
+
+        AND_WHEN("get_file_descriptor is called") {
+            const auto fd = file->get_file_descriptor();
+
+            THEN("it is a valid file descriptor") {
+                REQUIRE(is_fd_valid(fd));
+            }
+
+            AND_WHEN("set_destroy_action is called with Nothing") {
+                file->set_destroy_action(File::DestroyAction::Nothing);
+
+                AND_WHEN("the file is destroyed") {
+                    file = nullptr;
+
+                    THEN("the file descriptor is still valid") {
+                        REQUIRE(is_fd_valid(fd));
+                    }
+
+                    AND_WHEN("a new file instance is created using that file descriptor") {
+                        file = std::make_unique<File>(File::from_file_descriptor(fd));
+
+                        AND_WHEN("that file is destroyed") {
+                            file = nullptr;
+
+                            THEN("the file descriptor is no longer valid") {
+                                REQUIRE(! is_fd_valid(fd));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     GIVEN("/dev/zero as a the target file path") {
         const std::string targetFile = "/dev/zero";
 
