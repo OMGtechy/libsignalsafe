@@ -144,7 +144,7 @@ std::size_t File::read(std::span<std::byte> target) {
 }
 
 std::size_t File::read(std::span<char> target) {
-    return read(std::span<std::byte>(reinterpret_cast<std::byte*>(target.data()), target.size()));
+    return read(std::as_writable_bytes(target));
 }
 
 std::size_t File::write(std::span<const std::byte> source) {
@@ -177,7 +177,7 @@ std::size_t File::write(std::span<const std::byte> source) {
 }
 
 std::size_t File::write(std::span<const char> source) {
-    return write(std::span<const std::byte>(reinterpret_cast<const std::byte*>(source.data()), source.size()));
+    return write(std::as_bytes(source));
 }
 
 bool File::close() {
