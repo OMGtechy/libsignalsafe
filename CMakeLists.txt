@@ -12,6 +12,7 @@ option(ENABLE_UBSAN "Enable undefined behaviour sanitizer flags." OFF)
 add_library(
     signalsafe
     source/file.cpp
+    source/memory.cpp
 )
 
 target_include_directories(
