@@ -20,6 +20,16 @@ namespace signalsafe::memory {
         using lhs_element_t = decltype(source[0]);
         using rhs_element_t = decltype(target[0]);
 
+        if constexpr (std::is_same_v<LhsT, std::span<lhs_element_t>>
+                   && ! std::is_same_v<lhs_element_t, std::byte>) {
+            return copy_no_overlap(source.as_bytes(), target);
+        }
+
+        if constexpr (std::is_same_v<RhsT, std::span<rhs_element_t>>
+                   && ! std::is_same_v<rhs_element_t, std::byte>) {
+            return copy_no_overlap(source, target.as_wriable_bytes());
+        }
+
         static_assert(std::contiguous_iterator<decltype(std::begin(source))>);
         static_assert(std::contiguous_iterator<decltype(std::begin(target))>);
 
