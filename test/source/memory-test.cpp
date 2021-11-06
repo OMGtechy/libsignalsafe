@@ -3,8 +3,8 @@
 
 #include <array>
 
-using signalsafe::copy_no_overlap;
-using signalsafe::copy_with_overlap;
+using signalsafe::memory::copy_no_overlap;
+using signalsafe::memory::copy_with_overlap;
 
 SCENARIO("signalsafe::memory") {
     GIVEN("some chars") {

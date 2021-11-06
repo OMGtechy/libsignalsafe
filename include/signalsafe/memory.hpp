@@ -4,7 +4,7 @@
 #include <iterator>
 #include <span>
 
-namespace signalsafe {
+namespace signalsafe::memory {
     //!
     //! \brief  Copies memory, where the source and target do not overlap.
     //!
