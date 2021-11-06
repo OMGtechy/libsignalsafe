@@ -156,5 +156,50 @@ SCENARIO("signalsafe::memory") {
             }
         }
     }
+
+    GIVEN("some data") {
+        const std::array<char, 2> data = { 1, 2 };
+
+        {
+            std::array<char, 2> target;
+            target.fill('a');
+
+            WHEN("copy_no_overlap is called with them manually constructed rvalue span<char>s") {
+                const auto bytesCopied = copy_no_overlap(
+                    std::span<const char>(data.data(), data.size()),
+                    std::span<char>(target.data(), target.size())
+                );
+
+                THEN("the number of bytes copied is as expected") {
+                    REQUIRE(bytesCopied == data.size());
+                }
+
+                THEN("the data copied is correct") {
+                    REQUIRE(data == target);
+                }
+            }
+        }
+
+        {
+
+            std::array<char, 2> target;
+            target.fill('a');
+
+            WHEN("copy_with_overlap is called with them with manually constructed rvalue span<char>s") {
+                const auto bytesCopied = copy_with_overlap(
+                    std::span<const char>(data.data(), data.size()),
+                    std::span<char>(target.data(), target.size())
+                );
+
+                THEN("the number of bytes copied is as expected") {
+                    REQUIRE(bytesCopied == data.size());
+                }
+
+                THEN("the data copied is correct") {
+                    REQUIRE(data == target);
+                }
+            }
+        }
+    }
 }
 

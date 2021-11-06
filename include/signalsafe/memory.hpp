@@ -16,6 +16,15 @@ namespace signalsafe::memory {
     std::size_t copy_no_overlap(std::span<const std::byte> source, std::span<std::byte> target);
 
     template <typename LhsT, typename RhsT>
+    std::size_t copy_no_overlap(std::span<const LhsT> source, std::span<RhsT> target) requires (! std::is_same_v<LhsT, std::byte>)
+                                                                                            || (! std::is_same_v<RhsT, std::byte>) {
+        return copy_no_overlap(
+            std::as_bytes(source),
+            std::as_writable_bytes(target)
+        );
+    }
+
+    template <typename LhsT, typename RhsT>
     std::size_t copy_no_overlap(const LhsT& source, RhsT& target) {
         using lhs_element_t = decltype(source[0]);
         using rhs_element_t = decltype(target[0]);
@@ -38,6 +47,15 @@ namespace signalsafe::memory {
     //! \returns  The number of bytes copied.
     //!
     std::size_t copy_with_overlap(std::span<const std::byte> source, std::span<std::byte> target);
+
+    template <typename LhsT, typename RhsT>
+    std::size_t copy_with_overlap(std::span<const LhsT> source, std::span<RhsT> target) requires (! std::is_same_v<LhsT, std::byte>)
+                                                                                              || (! std::is_same_v<RhsT, std::byte>) {
+        return copy_with_overlap(
+            std::as_bytes(source),
+            std::as_writable_bytes(target)
+        );
+    }
 
     template <typename LhsT, typename RhsT>
     std::size_t copy_with_overlap(const LhsT& source, RhsT& target) {
