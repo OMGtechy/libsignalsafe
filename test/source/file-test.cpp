@@ -1,5 +1,5 @@
 #include "signalsafe-test.hpp"
-#include "signalsafe/file.hpp"
+#include <signalsafe/file.hpp>
 
 #include <cstddef>
 #include <cstring>
@@ -55,7 +55,7 @@ namespace {
     }
 }
 
-SCENARIO("signalsafe::file") {
+SCENARIO("signalsafe::File") {
     GIVEN("a c-string") {
         const char str[] = "Testing STDOUT works\n";
 
