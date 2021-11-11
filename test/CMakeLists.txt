@@ -18,6 +18,7 @@ add_executable(
     source/signalsafe-test.cpp
     source/file-test.cpp
     source/memory-test.cpp
+    source/time-test.cpp
 )
 
 target_compile_options(

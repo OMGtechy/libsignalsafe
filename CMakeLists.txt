@@ -13,6 +13,7 @@ add_library(
     signalsafe
     source/file.cpp
     source/memory.cpp
+    source/time.cpp
 )
 
 target_include_directories(
