@@ -10,6 +10,12 @@ using signalsafe::memory::copy_no_overlap;
 // An unnamed namespace won't do the trick since this is technically a header file.
 namespace signalsafe::string::impl {
     template <typename T>
+    std::size_t stringify(std::span<char> targetStr, T value) requires std::is_same_v<T, const char*>
+                                                                    || std::is_same_v<T,       char*> {
+        return copy_no_overlap(std::span<const char>{ value, strlen(value) }, targetStr);
+    }
+
+    template <typename T>
     std::size_t stringify(std::span<char> targetStr, T value) requires std::is_same_v<T, uint32_t>
                                                                     || std::is_same_v<T, uint64_t> {
         assert(targetStr.size() > 0);

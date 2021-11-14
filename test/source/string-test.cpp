@@ -98,5 +98,20 @@ SCENARIO("signalsafe::string") {
                 REQUIRE(std::string(targetStr) == std::string(expectedStr));
             }
         }
+
+        WHEN("it is formatted with a string literal") {
+            const char expectedStr[] = "format: abc";
+            char targetStr[sizeof(expectedStr)] = { };
+
+            const auto bytesWritten = format(formatStr, targetStr, "abc");
+
+            THEN("the expected number of bytes are written") {
+                REQUIRE(bytesWritten == sizeof(targetStr));
+            }
+
+            THEN("it matches the expected result") {
+                REQUIRE(std::string(targetStr) == std::string(expectedStr));
+            }
+        }
     }
 }
