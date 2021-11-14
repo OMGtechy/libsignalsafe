@@ -5,7 +5,7 @@ using signalsafe::string::format;
 
 // This file exists to make sure multiple translation units can use format.
 
-SCENARIO("signalsafe::string") {
+SCENARIO("signalsafe::string (alt)") {
     GIVEN("a format string with a single format specifier") {
         const char formatStr[] = "format: %";
 
