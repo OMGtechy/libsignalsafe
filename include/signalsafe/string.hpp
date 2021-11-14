@@ -5,7 +5,7 @@
 
 namespace signalsafe::string {
     template <typename... ArgTypes>
-    std::size_t format(
+    inline std::size_t format(
         std::span<const char> format,
         std::span<char> target,
         const ArgTypes... args);

@@ -19,6 +19,7 @@ add_executable(
     source/file-test.cpp
     source/memory-test.cpp
     source/string-test.cpp
+    source/string-test-alt.cpp
     source/time-test.cpp
 )
 

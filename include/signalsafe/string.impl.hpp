@@ -64,7 +64,7 @@ namespace signalsafe::string::impl {
 }
 
 namespace signalsafe::string {
-    std::size_t format(
+    inline std::size_t format(
         std::span<const char> formatStr,
         std::span<char> targetStr) {
 
@@ -72,7 +72,7 @@ namespace signalsafe::string {
     }
 
     template <typename T, typename... ArgTypes>
-    std::size_t format(
+    inline std::size_t format(
         std::span<const char> formatStr,
         std::span<char> targetStr,
         const T& firstArg,
