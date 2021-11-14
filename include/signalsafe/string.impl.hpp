@@ -62,52 +62,52 @@ namespace signalsafe::string::impl {
     }
 }
 
-template <typename... ArgTypes>
-std::size_t signalsafe::string::format(
-    std::span<const char> formatStr,
-    std::span<char> targetStr) {
+namespace signalsafe::string {
+    std::size_t format(
+        std::span<const char> formatStr,
+        std::span<char> targetStr) {
 
-    return copy_no_overlap(formatStr, targetStr);
-}
-
-template <typename T, typename... ArgTypes>
-std::size_t signalsafe::string::format(
-    std::span<const char> formatStr,
-    std::span<char> targetStr,
-    const T& firstArg,
-    const ArgTypes... remainingArgs) {
-
-    const size_t bytesToProcess = std::min(formatStr.size(), targetStr.size());
-
-    // The return value is either:
-    // 1) NULL, meaning the we're done.
-    // 2) A pointer to the character after the % in the targetStr buffer,
-    //    meaning some formatting needs doing.
-    const char* const formatCharacterTarget = static_cast<char*>(
-        memccpy(
-            targetStr.data(),
-            formatStr.data(),
-            '%',
-            bytesToProcess
-        )
-    );
-
-    if (formatCharacterTarget == nullptr) {
-        return bytesToProcess;
+        return copy_no_overlap(formatStr, targetStr);
     }
 
-    assert(*(formatCharacterTarget - 1) == '%');
+    template <typename T, typename... ArgTypes>
+    std::size_t format(
+        std::span<const char> formatStr,
+        std::span<char> targetStr,
+        const T& firstArg,
+        const ArgTypes... remainingArgs) {
 
-    auto bytesWritten = static_cast<std::size_t>(formatCharacterTarget - targetStr.data()) - 1 /* for the % */;
-    formatStr = formatStr.last(formatStr.size() - (bytesWritten + 1));
-    targetStr = targetStr.last(targetStr.size() - bytesWritten);
+        const size_t bytesToProcess = std::min(formatStr.size(), targetStr.size());
 
-    {
-        const auto newBytesWritten = impl::stringify(targetStr, firstArg);
-        targetStr = targetStr.last(targetStr.size() - newBytesWritten);
-        bytesWritten += newBytesWritten;
+        // The return value is either:
+        // 1) NULL, meaning the we're done.
+        // 2) A pointer to the character after the % in the targetStr buffer,
+        //    meaning some formatting needs doing.
+        const char* const formatCharacterTarget = static_cast<char*>(
+            memccpy(
+                targetStr.data(),
+                formatStr.data(),
+                '%',
+                bytesToProcess
+            )
+        );
+
+        if (formatCharacterTarget == nullptr) {
+            return bytesToProcess;
+        }
+
+        assert(*(formatCharacterTarget - 1) == '%');
+
+        auto bytesWritten = static_cast<std::size_t>(formatCharacterTarget - targetStr.data()) - 1 /* for the % */;
+        formatStr = formatStr.last(formatStr.size() - (bytesWritten + 1));
+        targetStr = targetStr.last(targetStr.size() - bytesWritten);
+
+        {
+            const auto newBytesWritten = impl::stringify(targetStr, firstArg);
+            targetStr = targetStr.last(targetStr.size() - newBytesWritten);
+            bytesWritten += newBytesWritten;
+        }
+
+        return bytesWritten + format(formatStr, targetStr, remainingArgs...);
     }
-
-    return bytesWritten + format(formatStr, targetStr, remainingArgs...);
 }
-
