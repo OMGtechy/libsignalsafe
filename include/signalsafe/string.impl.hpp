@@ -1,6 +1,7 @@
 #include "signalsafe/string.hpp"
 
 #include <cassert>
+#include <cmath>
 #include <cstring>
 
 #include <signalsafe/memory.hpp>
