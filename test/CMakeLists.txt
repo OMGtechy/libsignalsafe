@@ -56,12 +56,22 @@ if(ENABLE_ASAN)
         PRIVATE
         -fsanitize=address
     )
+    target_link_options(
+        signalsafe
+        PUBLIC
+        -fsanitize=address
+    )
 endif()
 
 if(ENABLE_UBSAN)
     target_compile_options(
         signalsafe-test
         PRIVATE
+        -fsanitize=undefined
+    )
+    target_link_options(
+        signalsafe
+        PUBLIC
         -fsanitize=undefined
     )
 endif()
