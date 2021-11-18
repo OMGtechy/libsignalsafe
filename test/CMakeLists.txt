@@ -44,7 +44,7 @@ target_link_libraries(
 
 if(ENABLE_ASAN OR ENABLE_UBSAN)
     target_compile_options(
-        signalsafe
+        signalsafe-test
         PRIVATE
         -fno-omit-frame-pointer
     )
@@ -52,7 +52,7 @@ endif()
 
 if(ENABLE_ASAN)
     target_compile_options(
-        signalsafe
+        signalsafe-test
         PRIVATE
         -fsanitize=address
     )
@@ -60,7 +60,7 @@ endif()
 
 if(ENABLE_UBSAN)
     target_compile_options(
-        signalsafe
+        signalsafe-test
         PRIVATE
         -fsanitize=undefined
     )
