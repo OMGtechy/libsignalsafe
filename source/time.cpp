@@ -6,7 +6,7 @@ using signalsafe::time::TimeSpecification;
 
 TimeSpecification signalsafe::time::now(const clockid_t clockID) {
     timespec timespecNow { 0, 0 };
-    const int returnValue = clock_gettime(clockID, &timespecNow);
+    [[maybe_unused]] const int returnValue = clock_gettime(clockID, &timespecNow);
 
     // As far as I know, the only reason it can fail are:
     //

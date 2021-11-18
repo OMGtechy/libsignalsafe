@@ -16,7 +16,7 @@ namespace {
         case File::DestroyAction::Nothing: return;
         case File::DestroyAction::Close: {
             if (file.get_file_descriptor() != -1) {
-                const auto closeSuccess = file.close();
+                [[maybe_unused]] const auto closeSuccess = file.close();
                 assert(closeSuccess);
             }
         }}
@@ -121,7 +121,7 @@ std::size_t File::read(std::span<std::byte> target) {
 
         if (newBytesReadOrError < 0) {
             // Just in case any subsequent calls modify it.
-            const auto errorCode = errno;
+            [[maybe_unused]] const auto errorCode = errno;
 
             // This is the only "acceptable" error;
             // it can happen when a signal fires mid-read.
@@ -159,7 +159,7 @@ std::size_t File::write(std::span<const std::byte> source) {
 
         if (newBytesWrittenOrError < 0) {
             // Just in case any subsequent calls modify it.
-            const auto errorCode = errno;
+            [[maybe_unused]] const auto errorCode = errno;
 
             // This is the only "acceptable" error;
             // it can happen when a signal fires mid-write.
