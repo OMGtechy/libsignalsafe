@@ -1,6 +1,6 @@
 #pragma once
 
-#include "signalsafe/string.hpp"
+#include <signalsafe/string.hpp>
 
 #include <cassert>
 #include <cmath>
