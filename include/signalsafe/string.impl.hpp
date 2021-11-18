@@ -1,3 +1,5 @@
+#pragma once
+
 #include "signalsafe/string.hpp"
 
 #include <cassert>
