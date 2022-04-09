@@ -72,7 +72,7 @@ File File::create_and_open_temporary() {
 
 void File::create_and_open_temporary_internal() {
     m_fileDescriptor = ::open(
-        "/tmp",
+        ".",
         O_TMPFILE | O_RDWR,
         S_IRUSR | S_IWUSR
     );
