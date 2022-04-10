@@ -33,10 +33,21 @@ namespace {
 
         std::array<char, 8> lineBuffer = { };
 
-        fgets(lineBuffer.data(), lineBuffer.size(), linuxFilePtrRAII.linuxFilePtr);
+        const auto fgetsReturn = fgets(lineBuffer.data(), lineBuffer.size(), linuxFilePtrRAII.linuxFilePtr);
+        const auto strLen = strnlen(lineBuffer.data(), lineBuffer.size());
+        const auto readEmptyString = strLen == 0;
+
+        // fgets returns NULL when either:
+        // a) there's an error
+        // b) there was no data to read
+        // the latter is fine, the former is not
+        REQUIRE((
+            (fgetsReturn == lineBuffer.data() && !readEmptyString)
+         || (fgetsReturn == NULL && readEmptyString)
+        ));
 
         // no lsof output means nothing has it open
-        return strnlen(lineBuffer.data(), lineBuffer.size()) == 0 ? FileOpenState::Closed : FileOpenState::Open;
+        return readEmptyString ? FileOpenState::Closed : FileOpenState::Open;
     }
 
     std::filesystem::path get_temporary_file_path(const size_t lineNumber) {
