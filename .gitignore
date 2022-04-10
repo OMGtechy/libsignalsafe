@@ -1,6 +1,9 @@
 # Common CMake build directory
 build
 
+# VSCode
+.vscode
+
 # Prerequisites
 *.d
 
